@@ -67,6 +67,10 @@ namespace NUnit.Direct
     {
         private LoggerBase log = new ConsoleLogger();
 
+        public void RunStarted(string name, int testCount)
+        {
+        }
+
         public void RunFinished(Exception exception)
         {
             log.Warn("Test run finished with exception:");
@@ -80,17 +84,19 @@ namespace NUnit.Direct
             // given how exceptions are not swallowed.
         }
 
-        public void RunStarted(string name, int testCount)
+        public void SuiteStarted(TestName testName)
         {
+            log.Info("Start suite {0}".Fmt(testName.Name));
         }
 
         public void SuiteFinished(TestResult result)
         {
+            log.Info("End suite");
         }
 
-        public void SuiteStarted(TestName testName)
+        public void TestStarted(TestName testName)
         {
-            log.Info("Suite {0}".Fmt(testName.Name));
+            log.Info("Running test {0} ...".Fmt(testName.Name));
         }
 
         public void TestFinished(TestResult result)
@@ -99,12 +105,14 @@ namespace NUnit.Direct
 
         public void TestOutput(TestOutput testOutput)
         {
-            throw new NotImplementedException();
-        }
-
-        public void TestStarted(TestName testName)
-        {
-            log.Info("Running test {0} ...".Fmt(testName.Name));
+            LogType type;
+            switch (testOutput.Type)
+            {
+                case TestOutputType.Error: type = LogType.Error; break;
+                case TestOutputType.Out: type = LogType.Info; break;
+                default: type = LogType.Debug; break;
+            }
+            log.Log(0, type, testOutput.Text);
         }
 
         public void UnhandledException(Exception exception)
@@ -150,7 +158,7 @@ namespace NUnit.Direct
 
         protected override void DoOneTimeTearDown(TestResult suiteResult)
         {
-            if (this.Fixture != null)
+            if (this.FixtureType != null)
             {
                 if (this.fixtureTearDownMethods != null)
                 {

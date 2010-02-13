@@ -11,7 +11,7 @@ namespace NUnit.Direct
 {
     public interface IInvokeDirect
     {
-        object DoInvoke(object instance);
+        object DoInvoke(object instance, object[] parameters);
     }
 
     static class Helper
@@ -45,7 +45,7 @@ namespace NUnit.Direct
                     typeof(object), new Type[] { typeof(IInvokeDirect) });
 
                 var methodBuilder = typeBuilder.DefineMethod("DoInvoke", MethodAttributes.Public | MethodAttributes.Virtual,
-                    typeof(object), new Type[] { typeof(object) });
+                    typeof(object), new Type[] { typeof(object), typeof(object[]) });
 
                 typeBuilder.DefineMethodOverride(methodBuilder, typeof(IInvokeDirect).GetMethod("DoInvoke"));
 
@@ -73,7 +73,7 @@ namespace NUnit.Direct
                 invokes[sig] = (IInvokeDirect) Activator.CreateInstance(type);
             }
 
-            return invokes[sig].DoInvoke(instance);
+            return invokes[sig].DoInvoke(instance, parameters);
         }
 
         private static void EmitLdcI4(ILGenerator il, int value)

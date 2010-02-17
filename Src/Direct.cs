@@ -132,6 +132,9 @@ namespace NUnit.Direct
         {
             foreach (var fld in typeof(TestSuite).GetAllFields())
                 fld.SetValue(this, fld.GetValue(suite));
+            if (Tests != null)
+                foreach (Test child in Tests)
+                    child.Parent = this;
         }
 
         protected override void DoOneTimeSetUp(TestResult suiteResult)
@@ -186,6 +189,9 @@ namespace NUnit.Direct
         {
             foreach (var fld in typeof(TestMethod).GetAllFields())
                 fld.SetValue(this, fld.GetValue(other));
+            if (Tests != null)
+                foreach (Test child in Tests)
+                    child.Parent = this;
         }
 
         public override void doRun(TestResult testResult)
@@ -261,7 +267,12 @@ namespace NUnit.Direct
             {
                 if (this.Parent != null)
                 {
-                    this.Fixture = this.Parent.Fixture;
+                    Test t = this;
+                    while (t != null && Fixture == null)
+                    {
+                        Fixture = t.Fixture;
+                        t = t.Parent;
+                    }
                     TestSuite suite = this.Parent as TestSuite;
                     if (suite != null)
                     {

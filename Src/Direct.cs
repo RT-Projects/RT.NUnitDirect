@@ -27,7 +27,7 @@ namespace NUnit.Direct
         {
             var result = new DirectTestSuite(suite);
 
-            // replace all TestSuite's with MyTestSuite's recursively... ugh...
+            // replace all TestSuite's with DirectTestSuite's recursively... ugh...
             Queue<Test> tests = new Queue<Test>();
             tests.Enqueue(result);
             while (tests.Count > 0)

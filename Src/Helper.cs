@@ -30,6 +30,8 @@ namespace NUnit.Direct
                 throw new ArgumentException("Static method requires a null instance.");
             if (method.IsGenericMethodDefinition)
                 throw new ArgumentException("Cannot invoke generic method definitions. Concretise the generic type first by supplying generic type parameters.");
+            if (parameters == null)
+                parameters = new object[0];
             if (method.GetParameters().Length != parameters.Length)
                 throw new ArgumentException("Parameter count mismatch: {0} parameters given; {1} parameters expected.".Fmt(parameters.Length, method.GetParameters().Length));
 

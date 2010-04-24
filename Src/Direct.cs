@@ -86,12 +86,12 @@ namespace NUnit.Direct
 
         public void SuiteStarted(TestName testName)
         {
-            log.Info("Start suite {0}".Fmt(testName.Name));
+            log.Info("Start suite {0}".Fmt(testName.FullName));
         }
 
         public void SuiteFinished(TestResult result)
         {
-            log.Info("End suite");
+            log.Info("End suite {0} ({1}, took {2} sec)".Fmt(result.Test.TestName.FullName, result.ResultState, result.Time));
         }
 
         public void TestStarted(TestName testName)

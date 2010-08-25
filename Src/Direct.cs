@@ -298,10 +298,7 @@ namespace NUnit.Direct
 
                 while (repeatCount-- > 0)
                 {
-                    if (RequiresThread || Timeout > 0 || ApartmentState != GetCurrentApartment())
-                        new TestMethodThread(this).Run(testResult, NullListener.NULL, TestFilter.Empty);
-                    else
-                        doRun(testResult);
+                    doRun(testResult);
 
                     if (testResult.ResultState == ResultState.Failure ||
                         testResult.ResultState == ResultState.Error ||

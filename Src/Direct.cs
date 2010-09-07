@@ -10,7 +10,7 @@ namespace NUnit.Direct
 {
     public static class NUnitDirect
     {
-        public static void RunTestsOnAssembly(Assembly assembly)
+        public static void RunTestsOnAssembly(Assembly assembly, bool suppressTimesInLog = false)
         {
             var package = new TestPackage(assembly.Location);
             if (!CoreExtensions.Host.Initialized)
@@ -20,7 +20,7 @@ namespace NUnit.Direct
             var tests = directize(testsIndirect);
 
             var results = new TestResult(tests);
-            tests.Run(results, new DirectListener(), NUnit.Core.TestFilter.Empty);
+            tests.Run(results, new DirectListener(suppressTimesInLog), NUnit.Core.TestFilter.Empty);
         }
 
         private static DirectTestSuite directize(TestSuite suite)
@@ -66,6 +66,14 @@ namespace NUnit.Direct
     class DirectListener : EventListener
     {
         private LoggerBase log = new ConsoleLogger();
+        private bool _suppressTimesInLog;
+
+        public DirectListener(bool suppressTimesInLog)
+        {
+            _suppressTimesInLog = suppressTimesInLog;
+            if (suppressTimesInLog)
+                log.MessageFormat = "{2}/{1,-5} | ";
+        }
 
         public void RunStarted(string name, int testCount)
         {
@@ -91,7 +99,7 @@ namespace NUnit.Direct
 
         public void SuiteFinished(TestResult result)
         {
-            log.Info("{0} — END ({1}, took {2} sec)".Fmt(result.Test.TestName.FullName, result.ResultState, result.Time));
+            log.Info((_suppressTimesInLog ? "{0} — END ({1})" : "{0} — END ({1}, took {2} sec)").Fmt(result.Test.TestName.FullName, result.ResultState, result.Time));
         }
 
         public void TestStarted(TestName testName)

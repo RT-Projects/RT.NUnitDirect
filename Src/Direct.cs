@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Text;
 using NUnit.Core;
 using RT.Util;
 using RT.Util.ExtensionMethods;
@@ -70,6 +71,7 @@ namespace NUnit.Direct
 
         public DirectListener(bool suppressTimesInLog)
         {
+            Console.OutputEncoding = Encoding.UTF8;
             _suppressTimesInLog = suppressTimesInLog;
             if (suppressTimesInLog)
                 log.MessageFormat = "{2}/{1,-5} | ";

@@ -9,12 +9,12 @@ using RT.Util.ExtensionMethods;
 
 namespace NUnit.Direct
 {
-    public interface IInvokeDirect
+    interface IInvokeDirect
     {
         object DoInvoke(object instance, object[] parameters, MethodInfo method);
     }
 
-    public static class Helper
+    static class Helper
     {
         private static AssemblyBuilder asmBuilder;
         private static ModuleBuilder modBuilder;

@@ -9,8 +9,15 @@ using RT.Util.ExtensionMethods;
 
 namespace NUnit.Direct
 {
+    /// <summary>Provides a method to run NUnit-compatible unit tests in an assembly in a debugger-friendly way.</summary>
     public static class NUnitDirect
     {
+        /// <summary>
+        ///     Runs NUnit-compatible unit tests in an assembly in a debugger-friendly way.</summary>
+        /// <param name="assembly">
+        ///     The assembly containing the unit tests to run.</param>
+        /// <param name="suppressTimesInLog">
+        ///     Indicates whether to suppress the timing information in the log output produced. Defaults to <c>false</c>.</param>
         public static void RunTestsOnAssembly(Assembly assembly, bool suppressTimesInLog = false)
         {
             var package = new TestPackage(assembly.Location);

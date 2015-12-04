@@ -137,8 +137,8 @@ namespace NUnit.Direct
         {
             if (asmBuilder == null)
             {
-                asmBuilder = Thread.GetDomain().DefineDynamicAssembly(new AssemblyName("invoke_helper_assembly"), AssemblyBuilderAccess.Run);
-                modBuilder = asmBuilder.DefineDynamicModule("invoke_helper_module");
+                asmBuilder = Thread.GetDomain().DefineDynamicAssembly(new AssemblyName("NUnitDirect_invoke_helper_assembly"), AssemblyBuilderAccess.Run);
+                modBuilder = asmBuilder.DefineDynamicModule("NUnitDirect_invoke_helper_module");
             }
         }
 

@@ -34,3 +34,5 @@ using System.Runtime.InteropServices;
 // [assembly: AssemblyVersion("1.0.*")]
 [assembly: AssemblyVersion("1.0.9999.9999")]
 [assembly: AssemblyFileVersion("1.0.9999.9999")]
+
+[assembly: InternalsVisibleTo("NUnitDirect_invoke_helper_assembly")]

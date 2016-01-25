@@ -4,8 +4,6 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using NUnit.Core;
-using RT.Util;
-using RT.Util.ExtensionMethods;
 
 namespace NUnit.Direct
 {
@@ -73,15 +71,12 @@ namespace NUnit.Direct
 
     class DirectListener : EventListener
     {
-        private LoggerBase log = new ConsoleLogger();
         private bool _suppressTimesInLog;
 
         public DirectListener(bool suppressTimesInLog)
         {
             Console.OutputEncoding = Encoding.UTF8;
             _suppressTimesInLog = suppressTimesInLog;
-            if (suppressTimesInLog)
-                log.MessageFormat = "{2}/{1,-5} | ";
         }
 
         public void RunStarted(string name, int testCount)
@@ -90,30 +85,30 @@ namespace NUnit.Direct
 
         public void RunFinished(Exception exception)
         {
-            log.Warn("Test run finished with exception:");
-            log.Exception(exception);
+            log("Test run finished with exception:");
+            logException(exception);
         }
 
         public void RunFinished(TestResult result)
         {
-            log.Info(result.IsSuccess ? "Test run finished - SUCCESS" : "Test run finished - FAILURE");
+            log(result.IsSuccess ? "Test run finished - SUCCESS" : "Test run finished - FAILURE");
             // don't care too much about logging failures because they would most certainly never reach this point,
             // given how exceptions are not swallowed.
         }
 
         public void SuiteStarted(TestName testName)
         {
-            log.Info("{0} — START".Fmt(testName.FullName));
+            log("{0} — START".Fmt(testName.FullName));
         }
 
         public void SuiteFinished(TestResult result)
         {
-            log.Info((_suppressTimesInLog ? "{0} — END ({1})" : "{0} — END ({1}, took {2} sec)").Fmt(result.Test.TestName.FullName, result.ResultState, result.Time));
+            log((_suppressTimesInLog ? "{0} — END ({1})" : "{0} — END ({1}, took {2} sec)").Fmt(result.Test.TestName.FullName, result.ResultState, result.Time));
         }
 
         public void TestStarted(TestName testName)
         {
-            log.Info(" • {0}".Fmt(testName.Name));
+            log(" • {0}".Fmt(testName.Name));
         }
 
         public void TestFinished(TestResult result)
@@ -122,21 +117,30 @@ namespace NUnit.Direct
 
         public void TestOutput(TestOutput testOutput)
         {
-            LogType type;
-            switch (testOutput.Type)
-            {
-                case TestOutputType.Error: type = LogType.Error; break;
-                case TestOutputType.Out: type = LogType.Info; break;
-                default: type = LogType.Debug; break;
-            }
-            log.Log(0, type, testOutput.Text);
+            log(testOutput.Text);
         }
 
         public void UnhandledException(Exception exception)
         {
             // we don't expect this to ever get invoked
-            log.Warn("Unhandled exception:");
-            log.Exception(exception);
+            log("Unhandled exception:");
+            logException(exception);
+        }
+
+        private void log(string str)
+        {
+            if (!_suppressTimesInLog)
+                Console.Write("{0:yyyy'-'MM'-'dd' 'HH':'mm':'ss'.'fff} | ", DateTime.Now);
+            Console.WriteLine(str);
+        }
+
+        private void logException(Exception exception)
+        {
+            if (exception.InnerException != null)
+                logException(exception.InnerException);
+
+            log("<{0}>: {1}".Fmt(exception.GetType().ToString(), exception.Message));
+            log(exception.StackTrace);
         }
     }
 

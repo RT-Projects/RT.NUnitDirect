@@ -29,6 +29,34 @@ namespace NUnit.Direct
             tests.Run(results, new DirectListener(suppressTimesInLog), NUnit.Core.TestFilter.Empty);
         }
 
+        /// <summary>
+        ///     Invokes method <paramref name="method"/> on object <paramref name="instance"/> passing it the specified
+        ///     <paramref name="parameters"/>. Unlike <see cref="MethodBase.Invoke(object, object[])"/>, which wraps any
+        ///     exceptions in the target method into a <see cref="TargetInvocationException"/>, this will invoke the target
+        ///     method in such a way that any exceptions will propagate just like they would if the method had been invoked
+        ///     "directly" rather than via reflection. See Remarks.</summary>
+        /// <remarks>
+        ///     There is a good reason why <see cref="TargetInvocationException"/> is used: when using this method, you cannot
+        ///     tell apart an exception that occurred in the invoker (e.g. you passed in a null for <paramref name="method"/>
+        ///     or wrong number of parameter) from an exception that occurred in the target method. But it also means that the
+        ///     debugger will always stop at the Invoke call and not at the actual exception, because the inner exception is
+        ///     considered handled. One solution to this is to configure VS to stop on all exceptions, which has its own
+        ///     downsides. The other one is to use <see cref="InvokeDirect"/>. In practice, distinguishing target exceptions
+        ///     from invoker exceptions is usually not very important, so the annoyance of having to debug exceptions
+        ///     differently becomes a bigger problem.</remarks>
+        /// <param name="method">
+        ///     The method to invoke. Must be an instance method.</param>
+        /// <param name="instance">
+        ///     The instance on which to invoke the method. Must not be null, as static methods are not supported.</param>
+        /// <param name="parameters">
+        ///     Parameters to pass into the method.</param>
+        /// <returns>
+        ///     What the target method returned, or null if its return type is void.</returns>
+        public static object InvokeDirect(this MethodInfo method, object instance, params object[] parameters)
+        {
+            return Helper.InvokeMethodDirect(method, instance, parameters);
+        }
+
         private static DirectTestSuite directize(TestSuite suite)
         {
             var result = new DirectTestSuite(suite);

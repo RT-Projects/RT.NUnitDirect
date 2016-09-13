@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using System.Text.RegularExpressions;
 using NUnit.Core;
 
 namespace NUnit.Direct
@@ -16,17 +17,19 @@ namespace NUnit.Direct
         ///     The assembly containing the unit tests to run.</param>
         /// <param name="suppressTimesInLog">
         ///     Indicates whether to suppress the timing information in the log output produced. Defaults to <c>false</c>.</param>
-        public static void RunTestsOnAssembly(Assembly assembly, bool suppressTimesInLog = false)
+        /// <param name="filter">
+        ///     If not <c>null</c> (the default), only tests that match this regular expression are run.</param>
+        public static void RunTestsOnAssembly(Assembly assembly, bool suppressTimesInLog = false, string filter = null)
         {
             var package = new TestPackage(assembly.Location);
             if (!CoreExtensions.Host.Initialized)
                 CoreExtensions.Host.InitializeService();
 
             var testsIndirect = new TestSuiteBuilder().Build(package);
-            var tests = directize(testsIndirect);
+            var tests = directize(testsIndirect, filter);
 
             var results = new TestResult(tests);
-            tests.Run(results, new DirectListener(suppressTimesInLog), NUnit.Core.TestFilter.Empty);
+            tests.Run(results, new DirectListener(suppressTimesInLog), TestFilter.Empty);
         }
 
         /// <summary>
@@ -57,7 +60,7 @@ namespace NUnit.Direct
             return Helper.InvokeMethodDirect(method, instance, parameters);
         }
 
-        private static DirectTestSuite directize(TestSuite suite)
+        private static DirectTestSuite directize(TestSuite suite, string filter)
         {
             var result = new DirectTestSuite(suite);
 
@@ -81,9 +84,12 @@ namespace NUnit.Direct
                     }
                     else if (subtest is TestMethod)
                     {
-                        var replacement = new DirectTestMethod((TestMethod) subtest);
-                        test.Tests.Add(replacement);
-                        tests.Enqueue(replacement);
+                        if (filter == null || Regex.IsMatch(subtest.TestName.FullName, filter))
+                        {
+                            var replacement = new DirectTestMethod((TestMethod) subtest);
+                            test.Tests.Add(replacement);
+                            tests.Enqueue(replacement);
+                        }
                     }
                     else
                     {
